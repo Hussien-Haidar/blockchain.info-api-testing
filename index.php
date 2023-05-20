@@ -29,6 +29,17 @@ for ($i = 0; $i < count($dataPoints); $i += $step) {
 // Add the latest price as a separate point
 $latestPrice = end($dataPoints)['y'];
 $chartData[] = $latestPrice;
+
+$apiUrl = "https://blockchain.info/unspent?active=1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa";
+$response = file_get_contents($apiUrl);
+$data = json_decode($response, true);
+
+$utxoData = [];
+if (isset($data["unspent_outputs"]) && !empty($data["unspent_outputs"])) {
+    foreach ($data["unspent_outputs"] as $utxo) {
+        $utxoData[] = $utxo["tx_hash"];
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -41,6 +52,8 @@ $chartData[] = $latestPrice;
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
+            width: 100%;
+            border-collapse: collapse;
         }
 
         h1 {
@@ -167,6 +180,24 @@ $chartData[] = $latestPrice;
         </thead>
         <tbody id="transactionData">
             <!-- Transaction data will be dynamically added here -->
+        </tbody>
+    </table>
+
+    <br><br><br>
+
+    <h1>UTXO Information (Example)</h1>
+    <table id="utxoTable">
+        <thead>
+            <tr>
+                <th>Transaction Hash</th>
+            </tr>
+        </thead>
+        <tbody id="utxoData">
+            <?php foreach ($utxoData as $utxo) : ?>
+                <tr>
+                    <td><?php echo $utxo; ?></td>
+                </tr>
+            <?php endforeach; ?>
         </tbody>
     </table>
 
